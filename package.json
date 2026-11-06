@@ -1,0 +1,19 @@
+{
+  "name": "medibook",
+  "version": "1.0.0",
+  "description": "MERN Stack Doctor Appointment Booking & Live Outpatient Virtual Queue Management System",
+  "scripts": {
+    "dev:backend": "cd backend && npm start",
+    "dev:frontend": "cd frontend && npm run dev",
+    "seed": "cd backend && npm run seed"
+  },
+  "keywords": [
+    "mern",
+    "doctor-appointment",
+    "hospital-queue",
+    "virtual-queue",
+    "opd-management"
+  ],
+  "author": "Antigravity",
+  "license": "MIT"
+}
