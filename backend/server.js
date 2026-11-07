@@ -1,7 +1,3 @@
-import dns from "node:dns";
-
-dns.setServers(["8.8.8.8", "8.8.4.4"]);
-
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -21,21 +17,21 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Security HTTP Headers
+// Security Headers
 app.use(helmet());
 
 // CORS Configuration
-const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+].filter(Boolean);
 
 app.use(
   cors({
-    origin: [
-      clientUrl,
-      "http://localhost:5173",
-      "http://127.0.0.1:5173",
-    ],
+    origin: allowedOrigins,
     credentials: true,
-  })
+  }),
 );
 
 // Middleware
@@ -76,7 +72,8 @@ app.use("/api/auth/register", authLimiter);
 
 // Health Check
 app.get("/api/health", (req, res) => {
-  res.json({
+  res.status(200).json({
+    success: true,
     status: "ok",
     app: "Medibook Doctor Appointment API",
     timestamp: new Date().toISOString(),
@@ -88,6 +85,14 @@ app.use("/api/auth", authRoutes);
 app.use("/api/doctors", doctorRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/doctor-dashboard", doctorDashboardRoutes);
+
+// 404 Handler
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "API route not found",
+  });
+});
 
 // Global Error Handler
 app.use((err, req, res, next) => {
@@ -107,10 +112,8 @@ const startServer = async () => {
   try {
     await connectDB();
 
-    app.listen(PORT, () => {
-      console.log(
-        `Medibook Backend Server running on http://localhost:${PORT}`
-      );
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Medibook Backend running on port ${PORT}`);
     });
   } catch (error) {
     console.error("Server startup failed:", error.message);
